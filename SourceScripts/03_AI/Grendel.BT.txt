@@ -1,0 +1,97 @@
+tree("Root")
+	parallel
+		repeat mute tree("Die")
+		repeat mute tree("BeAlive")
+		
+
+tree("BeAlive")
+	sequence
+			not IsDead
+		fallback
+			tree("Attacked")
+			//tree("ReturnToPlace")
+			tree("Attack")
+			tree("LookTarget")
+			tree("Patroll")
+
+tree("Attacked")
+	while IsAttacked
+		repeat
+			sequence
+				AttackedImpact
+
+tree("ReturnToPlace")
+	while IsOutOfBounds
+		repeat
+			sequence
+				SetDestination
+				parallel
+					MoveToDestination
+
+tree("LookTarget")
+	while
+		sequence
+			IsVisibleTarget
+			not HasEnemy
+			not IsAttacked
+		repeat
+			sequence
+				SetDestination_Enemy
+				parallel
+					LookAtDestination
+					Roaring
+					IsTargetThreaten(3.5)
+
+tree("Patroll")
+	while
+		sequence
+			not HasEnemy
+			not IsVisibleTarget
+			not IsAttacked
+
+		repeat
+			sequence
+					SetRandomDestination
+					MoveToDestination(5.0)
+
+tree("Attack")
+	while 
+		sequence
+			HasEnemy
+			not IsDead
+		fallback
+			repeat
+				sequence
+					IsTargetInAttackRange
+					BossAttack(1.8)
+					WaitIdle(0.2)
+			repeat
+				sequence
+					tree("ChaseTarget")
+			
+tree("ChaseTarget")
+	while
+		sequence
+			not IsTargetInAttackRange
+		parallel
+			repeat
+				SetDestination_ChaseTarget
+			fallback
+				repeat
+					sequence
+						not IsVisibleTarget
+						LookAtDestination
+				Random(3,7)
+					repeat
+						MoveToDestination
+					sequence
+						BossSkill(1)
+						repeat
+							MoveToDestination(5.0)
+
+
+tree("Die")
+	sequence
+		IsDead
+		DeadAndDestroy(5.0)
+		NotificationGameEnd
